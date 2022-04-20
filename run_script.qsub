@@ -1,0 +1,28 @@
+#!/bin/bash
+###
+###
+#SBATCH --time=00:01:00
+#SBATCH --tasks=2
+#SBATCH --job-name=imgCnvrt
+#SBATCH --output=output.o%j
+#SBATCH -p gpu
+
+echo "Started"
+module load python3
+module load cuda11.0/
+echo $CUDA_VISIBLE_DEVICES
+
+python3 /bsuhome/dustinrobinson275/test_env/test.py
+CUDA_VISIBLE_DEVICES=-1
+echo $CUDA_VISIBLE_DEVICES
+
+#python3 /bsuhome/dustinrobinson275/final/Real-ESRGAN/scripts/generate_multiscale_DF2K.py --input /bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/Flickr2K/Flickr2K_HR --output /bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/Flickr2K/Flickr2K_HR/F2K_multiscale
+
+#python3  scripts/extract_subimages.py --input /bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/Flickr2K/Flickr2K_HR/F2K_multiscale --output /bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/Flickr2K/Flickr2K_HR/F2K_multiscale_sub --crop_size 400 --step 200
+
+#python3 scripts/generate_meta_info.py --input datasets/DF2K/DF2K_multiscale_sub datasets/Flickr2K/F2K_multiscale_sub datasets/OST/OST --root datasets/DF2K datasets/Flickr2K datasets/OST --check --meta_info datasets/meta_info/meta_info_DF2Kmultiscale_OST.txt
+echo "Finished"
+status=$?
+if [ $status -ne 0 ]; then
+    exit $status
+fi

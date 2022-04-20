@@ -9,6 +9,7 @@ def main(args):
     for folder, root in zip(args.input, args.root):
         img_paths = sorted(glob.glob(os.path.join(folder, '*')))
         for img_path in img_paths:
+            print("img_path: " + img_path)
             status = True
             if args.check:
                 # read the image once for check, as some images may have errors
