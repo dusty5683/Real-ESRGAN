@@ -1,9 +1,9 @@
 name: Demo
 type: RealESRGANPairedDataset
 scale: 4
-dataroot_gt: tests/data
-dataroot_lq: tests/data
-meta_info: tests/data/meta_info_pair.txt
+dataroot_gt: datasets/validation
+dataroot_lq: datasets/validation
+meta_info: datasets/meta_info/meta_info_validation_pairs.txt
 io_backend:
   type: disk
 

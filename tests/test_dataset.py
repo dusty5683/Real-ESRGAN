@@ -1,6 +1,11 @@
 import pytest
 import yaml
+import sys
+import os
 
+# sys.path.append(os.path.abspath("/bsuhome/dustinrobinson275/final/Real-ESRGAN/realesrgan/data"))
+# from realesrgan_dataset import *
+# from realesrgan_paired_dataset import *
 from realesrgan.data.realesrgan_dataset import RealESRGANDataset
 from realesrgan.data.realesrgan_paired_dataset import RealESRGANPairedDataset
 
@@ -149,3 +154,8 @@ def test_realesrgan_paired_dataset():
     # check shape and contents
     assert result['gt'].shape == (3, 128, 128)
     assert result['lq'].shape == (3, 32, 32)
+
+# if __name__ == '__main__':
+#     #root_path = osp.abspath(osp.join(__file__, osp.pardir, osp.pardir))
+#     #print(osp.pardir)
+#     test_realesrgan_paired_dataset()

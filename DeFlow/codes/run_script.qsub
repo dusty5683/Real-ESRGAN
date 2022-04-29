@@ -1,0 +1,51 @@
+#!/bin/bash
+###
+###
+#SBATCH --time=24:00:00
+#SBATCH --nodes=1
+#SBATCH --gres=gpu:1
+#SBATCH --gpus=1
+#SBATCH --job-name=imgCnvrt
+#SBATCH --output=output.o%j
+#SBATCH -p gpu
+
+
+echo "Started"
+module load python3
+module load cuda11.0/
+echo $CUDA_VISIBLE_DEVICES
+
+python3 /bsuhome/dustinrobinson275/test_env/test.py
+
+
+#python3 /bsuhome/dustinrobinson275/final/Real-ESRGAN/scripts/generate_multiscale_DF2K.py --input /bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/Flickr2K/Flickr2K_HR --output /bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/Flickr2K/Flickr2K_HR/F2K_multiscale
+
+#python  datasets/create_DeFlow_train_dataset.py -source_dir /bsuhome/dustinrobinson275/scratch/F2K/F2K_HR/ -target_dir /bsuhome/dustinrobinson275/scratch/DF2K/DF2K_4x/
+#python  datasets/create_DeFlow_train_dataset.py -source_dir /bsuhome/dustinrobinson275/scratch/DF2K/DF2K_HR/ -target_dir /bsuhome/dustinrobinson275/scratch/DF2K/DF2K_4x/
+
+
+#python3 scripts/generate_meta_info.py --input datasets/DF2K/DF2K_multiscale_sub datasets/Flickr2K/F2K_multiscale_sub datasets/OST/OST --root datasets/DF2K datasets/Flickr2K datasets/OST --check --meta_info datasets/meta_info/meta_info_DF2Kmultiscale_OST.txt
+
+#Generate Conditional Flow Dataset
+CUDA_VISIBLE_DEVICES=1,2 python ~/final/DeFlow/codes/translate.py -opt DeFlow-AIM-RWSR.yml -model_path ~/final/DeFlow/trained_models/DeFlow_models/DeFlow-AIM-RWSR-100k.pth -source_dir ~/scratch/DF2K/DF2K_4x/4x -out_dir ~/scratch/DF2K/DF2K_4x/4x_lq
+#CUDA_VISIBLE_DEVICES=1,2 python ~/final/DeFlow/codes/translate.py -opt DeFlow-AIM-RWSR.yml -model_path ~/final/DeFlow/trained_models/DeFlow_models/DeFlow-AIM-RWSR-100k.pth -source_dir ~/scratch/DF2K/F2K_4x/4x  -out_dir ~/scratch/DF2K/F2K_4x/4x_lq
+#CUDA_VISIBLE_DEVICES=1,2,3,4 python ~/final/DeFlow/codes/translate.py -opt DeFlow-AIM-RWSR.yml -model_path ~/final/DeFlow/trained_models/DeFlow_models/DeFlow-AIM-RWSR-100k.pth -source_dir ~/scratch/validation/gt/OST/ -out_dir ~/scratch/validation/lq/
+#CUDA_VISIBLE_DEVICES=1,2 python ~/final/DeFlow/codes/translate.py -opt DeFlow-AIM-RWSR.yml -model_path ~/final/DeFlow/trained_models/DeFlow_models/DeFlow-AIM-RWSR-100k.pth -source_dir ~/final/Real-ESRGAN/datasets/Flickr2K/F2K_multiscale_sub/ -out_dir ~/final/Real-ESRGAN/datasets/Flickr2K/F2K_CNF_lq/
+#CUDA_VISIBLE_DEVICES=1,2,3,4 python ~/final/DeFlow/codes/translate.py -opt DeFlow-AIM-RWSR.yml -model_path ~/final/DeFlow/trained_models/DeFlow_models/DeFlow-AIM-RWSR-100k.pth -source_dir ~/scratch/F2K_multiscale_sub_temp/ -out_dir ~/final/Real-ESRGAN/datasets/Flickr2K/F2K_CNF_lq/
+#CUDA_VISIBLE_DEVICES=104 python ~/final/DeFlow/codes/translate.py -opt DeFlow-AIM-RWSR.yml -model_path ~/final/DeFlow/trained_models/DeFlow_models/DeFlow-AIM-RWSR-100k.pth -source_dir ~/final/Real-ESRGAN/datasets/OST/OST/ -out_dir ~/final/Real-ESRGAN/datasets/OST/OST_CNF_lq/
+echo $CUDA_VISIBLE_DEVICES
+
+#Generating LR-HR pairs
+#python scripts/generate_meta_info_pairdata.py --input datasets/CNF/CNF_gt datasets/CNF/CNF_lq  --meta_info datasets/DF2K/meta_info/meta_info_CNF_sub_pair.txt
+# ~/bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/DF2K/DF2K_HR
+# ~/bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/Flickr2K/F2K_HR
+# ~/bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/OST/OST
+
+# name_CNF_lq
+
+
+echo "Finished"
+status=$?
+if [ $status -ne 0 ]; then
+    exit $status
+fi

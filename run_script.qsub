@@ -1,26 +1,57 @@
 #!/bin/bash
 ###
 ###
-#SBATCH --time=00:01:00
-#SBATCH --tasks=2
+#SBATCH --time=29:00:00
+#SBATCH --nodes=2
+#SBATCH --gres=gpu:1
+#SBATCH --gpus=2
 #SBATCH --job-name=imgCnvrt
 #SBATCH --output=output.o%j
 #SBATCH -p gpu
 
+
 echo "Started"
-module load python3
+#module load python3
 module load cuda11.0/
+
 echo $CUDA_VISIBLE_DEVICES
 
-python3 /bsuhome/dustinrobinson275/test_env/test.py
-CUDA_VISIBLE_DEVICES=-1
+python /bsuhome/dustinrobinson275/test_env/test.py
+
+
+#python3 /bsuhome/dustinrobinson275/final/Real-ESRGAN/scripts/generate_multiscale_DF2K.py --input /bsuhome/dustinrobinson275/scratch/validation/gt/hi_res --output /bsuhome/dustinrobinson275/scratch/validation/lq/multiscale/
+#python 
+#python3  scripts/extract_subimages.py --input /bsuhome/dustinrobinson275/scratch/validation/lq/multiscale/ --output /bsuhome/dustinrobinson275/scratch/validation/lq/hr_multiscale --crop_size 400 --step 200
+
+# python scripts/generate_meta_info.py --input datasets/validation/gt --root datasets/validation --meta_info datasets/meta_info/meta_info_validation_single.txt
+
+#Generate Conditional Flow Dataset
+#CUDA_VISIBLE_DEVICES=-1 python codes/translate.py -opt DeFlow-AIM-RWSR.yml -model_path trained_models/DeFlow_models/DeFlow-AIM-RWSR-100k.pth -source_dir ~/bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/DF2K/DF2K_multiscale_sub/ -out_dir ~/bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/DF2K/DF2K_CNF_lq/
+
 echo $CUDA_VISIBLE_DEVICES
 
-#python3 /bsuhome/dustinrobinson275/final/Real-ESRGAN/scripts/generate_multiscale_DF2K.py --input /bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/Flickr2K/Flickr2K_HR --output /bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/Flickr2K/Flickr2K_HR/F2K_multiscale
+#Generating LR-HR pairs
+#Validation
+#python scripts/generate_meta_info_pairdata.py --input datasets/validation/gt datasets/validation/lq  --meta_info datasets/meta_info/meta_info_validation_pairs.txt
 
-#python3  scripts/extract_subimages.py --input /bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/Flickr2K/Flickr2K_HR/F2K_multiscale --output /bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/Flickr2K/Flickr2K_HR/F2K_multiscale_sub --crop_size 400 --step 200
+#Paired data 1X->4X
+# python scripts/generate_meta_info_pairdata.py --input /bsuhome/dustinrobinson275/final/DeFlow/datasets/AIM-RWSR/valid-gt-clean/1x /bsuhome/dustinrobinson275/final/DeFlow/datasets/AIM-RWSR/valid-input-noisy/1x  --meta_info datasets/meta_info/meta_info_CNF_sub_pair_v2.txt
 
-#python3 scripts/generate_meta_info.py --input datasets/DF2K/DF2K_multiscale_sub datasets/Flickr2K/F2K_multiscale_sub datasets/OST/OST --root datasets/DF2K datasets/Flickr2K datasets/OST --check --meta_info datasets/meta_info/meta_info_DF2Kmultiscale_OST.txt
+#Debug
+#CUDA_VISIBLE_DEVICES=0,1 python -m torch.distributed.launch --nproc_per_node=4 --master_port=4321 realesrgan/train.py -opt options/train_realesrnet_x4plus.yml --launcher pytorch --debug
+CUDA_VISIBLE_DEVICES=0,1 \
+python -m torch.distributed.launch --nproc_per_node=2 --master_port=4321 realesrgan/train.py -opt options/finetune_realesrgan_x4plus_pairdata.yml --launcher pytorch --auto_resume
+
+#CUDA_VISIBLE_DEVICES=3,4 \
+#python -m torch.distributed.launch --nproc_per_node=2 --master_port=4321 realesrgan/train.py -opt options/finetune_realesrgan_x4plus.yml --launcher pytorch --auto_resume
+
+# ~/bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/DF2K/DF2K_HR
+# ~/bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/Flickr2K/F2K_HR
+# ~/bsuhome/dustinrobinson275/final/Real-ESRGAN/datasets/OST/OST
+
+# name_CNF_lq
+
+
 echo "Finished"
 status=$?
 if [ $status -ne 0 ]; then
