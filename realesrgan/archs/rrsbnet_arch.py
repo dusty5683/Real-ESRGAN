@@ -37,7 +37,7 @@ class ResidualSparseBlock(nn.Module):
 
         x3 = self.lrelu(self.conv3(torch.cat((x, x1, x2), 1)))
         
-        #X2 jmp
+        #X2 jmp TO DO.. Need to fix
         x4 = self.lrelu(self.conv4(torch.cat((x, x1, x3), 1)))
         
         x5 = self.conv5(torch.cat((x, x1, x2, x4), 1))
